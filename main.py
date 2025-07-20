@@ -32,7 +32,10 @@ def get_vacancies():
     resp = requests.get(HH_API_URL, params=PARAMS)
     resp.raise_for_status()
     items = resp.json().get('items', [])
-    return {item['id']: item['alternate_url'] for item in items}
+    return {
+        f"{item['id']}_{item['published_at']}": item['alternate_url']
+        for item in items
+    }
 
 
 def send_telegram_message(text):
