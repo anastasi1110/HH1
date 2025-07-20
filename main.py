@@ -53,7 +53,7 @@ def main():
     else:
         send_telegram_message("Новых вакансий нет")
 
-    save_seen(set(current.keys()) | seen)
+    save_seen(seen | new_ids)
 
 
 if __name__ == "__main__":
