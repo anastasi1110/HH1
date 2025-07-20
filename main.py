@@ -41,14 +41,18 @@ def get_vacancies():
 def send_telegram_message(text):
     url = f'https://api.telegram.org/bot{TOKEN}/sendMessage'
     data = {'chat_id': CHAT_ID, 'text': text}
-    requests.post(url, data=data)
+    resp = requests.post(url, data=data)
+    if not resp.ok:
+        print(f"Ошибка отправки Telegram: {resp.status_code} {resp.text}")
 
 
 def main():
     seen = load_seen()
     current = get_vacancies()
 
+    print(f"Получено вакансий: {len(current)}")
     new_ids = set(current.keys()) - seen
+    print(f"Новых вакансий: {len(new_ids)}")
 
     if new_ids:
         for vid in new_ids:
