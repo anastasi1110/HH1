@@ -2,6 +2,14 @@ import requests
 import json
 import os
 
+HH_API_URL = 'https://api.hh.ru/vacancies'
+PARAMS = {
+    'text': 'product manager',
+    'area': 1,  # Москва
+    'search_period': 1,  # Опубликованы за сутки
+    'per_page': 50
+}
+
 SEEN_FILE = 'seen.json'
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -21,22 +29,10 @@ def save_seen(seen):
 
 
 def get_vacancies():
-    url = 'https://api.hh.ru/vacancies'
-    params = {
-        'text': 'product manager',
-        'area': 1,
-        'search_period': 1,
-        'per_page': 50
-    }
-    headers = {
-        'User-Agent': 'VacancyTelegramBot/1.0 (+contact@example.com)'
-    }
-
-    resp = requests.get(url, params=params, headers=headers)
+    resp = requests.get(HH_API_URL, params=PARAMS)
     resp.raise_for_status()
-    data = resp.json()
-
-    return {item['alternate_url'] for item in data['items']}
+    items = resp.json().get('items', [])
+    return {item['alternate_url'] for item in items}
 
 
 def send_telegram_message(text):
