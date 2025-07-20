@@ -5,8 +5,8 @@ import os
 HH_API_URL = 'https://api.hh.ru/vacancies'
 PARAMS = {
     'text': 'product manager',
-    'area': 1,  # Москва
-    'search_period': 1,  # Опубликованы за сутки
+    'area': 1,
+    'search_period': 1,
     'per_page': 50
 }
 
@@ -32,7 +32,7 @@ def get_vacancies():
     resp = requests.get(HH_API_URL, params=PARAMS)
     resp.raise_for_status()
     items = resp.json().get('items', [])
-    return {item['alternate_url'] for item in items}
+    return {item['id']: item['alternate_url'] for item in items}
 
 
 def send_telegram_message(text):
@@ -44,15 +44,16 @@ def send_telegram_message(text):
 def main():
     seen = load_seen()
     current = get_vacancies()
-    new = current - seen
 
-    if new:
-        for url in new:
-            send_telegram_message(url)
+    new_ids = set(current.keys()) - seen
+
+    if new_ids:
+        for vid in new_ids:
+            send_telegram_message(current[vid])
     else:
         send_telegram_message("Новых вакансий нет")
 
-    save_seen(current)
+    save_seen(set(current.keys()) | seen)
 
 
 if __name__ == "__main__":
